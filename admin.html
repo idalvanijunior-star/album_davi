@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Painel – Diário do Davi Miguel</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--azul:#2f6fb5;--escuro:#1d3f6e;--ceu:#cfe4f7;--suave:#5f7f9f}
+*{box-sizing:border-box}
+body{margin:0;font-family:Nunito,system-ui,sans-serif;color:var(--escuro);background:linear-gradient(180deg,#d9eafa,#f4f9fe) fixed;min-height:100vh;padding:20px 14px 48px}
+.caixa{max-width:460px;margin:0 auto;background:#fff;border-radius:18px;padding:22px 20px;box-shadow:0 6px 20px rgba(29,63,110,.16);margin-bottom:16px}
+h1{font-family:Pacifico,cursive;font-weight:400;font-size:1.6rem;margin:0 0 4px;text-align:center}
+h2{font-size:1.1rem;margin:0 0 12px}
+p.sub{text-align:center;color:var(--suave);margin:0 0 16px}
+label{display:block;font-weight:800;font-size:.9rem;margin:12px 0 4px}
+input,select{width:100%;font:inherit;padding:10px 12px;border:2px solid var(--ceu);border-radius:10px;background:#fff;color:var(--escuro)}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--escuro);outline-offset:2px}
+.btn{width:100%;margin-top:16px;border:0;background:var(--azul);color:#fff;font:800 1rem Nunito,sans-serif;padding:12px;border-radius:12px;cursor:pointer}
+.btn:disabled{opacity:.6;cursor:wait}
+.sec{background:none;color:var(--azul);border:2px solid var(--ceu);margin-top:8px}
+.msg{margin-top:12px;font-weight:600;min-height:1.2em}
+.msg.erro{color:#b3261e}.msg.ok{color:#1b7a3d}
+.topo{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.topo button{border:0;background:none;color:var(--azul);font:800 .9rem Nunito,sans-serif;cursor:pointer;padding:6px}
+.lin{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--ceu)}
+.lin img{width:48px;height:48px;object-fit:cover;border-radius:8px;background:var(--ceu)}
+.lin div{flex:1;font-size:.9rem;min-width:0}.lin small{display:block;color:var(--suave)}
+.lin button{border:0;background:none;color:#b3261e;font:800 .85rem Nunito,sans-serif;cursor:pointer;padding:6px}
+.oculto{display:none}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+</head>
+<body>
+<div class="caixa oculto" id="semConfig">
+  <h1>🧸 Falta configurar</h1>
+  <p class="sub">Abra o arquivo config.js e cole a Project URL e a chave anon do Supabase.</p>
+</div>
+
+<div class="caixa oculto" id="login">
+  <h1>🔒 Painel do Davi</h1>
+  <p class="sub">Acesso restrito aos pais</p>
+  <form id="fLogin">
+    <label for="email">E-mail</label>
+    <input id="email" type="email" autocomplete="username" required>
+    <label for="senha">Senha</label>
+    <input id="senha" type="password" autocomplete="current-password" required>
+    <button class="btn" id="bEntrar" type="submit">Entrar</button>
+    <div class="msg" id="mLogin" role="status"></div>
+  </form>
+</div>
+
+<div class="oculto" id="painel">
+  <div class="caixa">
+    <div class="topo"><h1 style="text-align:left;margin:0">📷 Nova foto</h1><button id="sair" type="button">Sair</button></div>
+    <form id="fFoto">
+      <label for="arq">Foto</label>
+      <input id="arq" type="file" accept="image/*" required>
+      <label for="data">Data da foto</label>
+      <input id="data" type="date" required>
+      <label for="mes">Mês do Davi</label>
+      <select id="mes"></select>
+      <label for="leg">Legenda</label>
+      <input id="leg" type="text" maxlength="80" placeholder="Meu sorriso mais lindo! ❤️" required>
+      <button class="btn" id="bSalvar" type="submit">Salvar foto</button>
+      <div class="msg" id="mFoto" role="status"></div>
+    </form>
+  </div>
+  <div class="caixa">
+    <h2>Últimas fotos</h2>
+    <div id="lista"></div>
+    <a href="diario.html" style="display:block;text-align:center;margin-top:12px;color:var(--azul);font-weight:800">Ver o diário</a>
+  </div>
+</div>
+
+<script>
+var NASC = "2026-05-02";
+var $ = function(id){ return document.getElementById(id); };
+var temConfig = window.SUPABASE_URL && window.SUPABASE_URL.indexOf("http") === 0 && window.SUPABASE_KEY && window.SUPABASE_KEY.indexOf("COLE") !== 0;
+
+function msg(el, texto, tipo){ el.textContent = texto || ""; el.className = "msg" + (tipo ? " " + tipo : ""); }
+function tela(logado){ $("login").classList.toggle("oculto", logado); $("painel").classList.toggle("oculto", !logado); if(logado) carregaLista(); }
+
+for(var i = 1; i <= 24; i++){ var o = document.createElement("option"); o.value = i; o.textContent = i + "º mês"; $("mes").appendChild(o); }
+function mesDaData(v){
+  var n = new Date(NASC + "T00:00:00"), d = new Date(v + "T00:00:00");
+  var m = (d.getFullYear()-n.getFullYear())*12 + d.getMonth()-n.getMonth();
+  if(d.getDate() < n.getDate()) m--;
+  return Math.min(24, Math.max(1, m));
+}
+$("data").value = new Date().toISOString().slice(0,10);
+$("mes").value = mesDaData($("data").value);
+$("data").onchange = function(){ if($("data").value) $("mes").value = mesDaData($("data").value); };
+
+function reduz(file){
+  return new Promise(function(ok, falha){
+    var img = new Image(), u = URL.createObjectURL(file);
+    img.onload = function(){
+      var r = Math.min(1, 1600 / Math.max(img.width, img.height));
+      var c = document.createElement("canvas");
+      c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(u);
+      c.toBlob(function(b){ b ? ok(b) : falha(new Error("Não consegui preparar a foto.")); }, "image/jpeg", 0.85);
+    };
+    img.onerror = function(){ falha(new Error("Não consegui ler essa imagem. Tente uma foto em JPG ou PNG.")); };
+    img.src = u;
+  });
+}
+function dataBr(s){ return s.split("-").reverse().join("/"); }
+
+if(!temConfig){
+  $("semConfig").classList.remove("oculto");
+} else {
+  var sb = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
+
+  sb.auth.getSession().then(function(r){ tela(!!r.data.session); });
+  sb.auth.onAuthStateChange(function(_e, s){ tela(!!s); });
+
+  $("fLogin").onsubmit = async function(e){
+    e.preventDefault(); $("bEntrar").disabled = true; msg($("mLogin"), "Entrando...");
+    var r = await sb.auth.signInWithPassword({ email: $("email").value.trim(), password: $("senha").value });
+    $("bEntrar").disabled = false;
+    if(r.error) msg($("mLogin"), "E-mail ou senha incorretos.", "erro"); else msg($("mLogin"), "");
+  };
+  $("sair").onclick = function(){ sb.auth.signOut(); };
+
+  $("fFoto").onsubmit = async function(e){
+    e.preventDefault(); $("bSalvar").disabled = true; msg($("mFoto"), "Enviando a foto...");
+    try {
+      var blob = await reduz($("arq").files[0]);
+      var caminho = Date.now() + ".jpg";
+      var up = await sb.storage.from("fotos").upload(caminho, blob, { contentType: "image/jpeg" });
+      if(up.error) throw new Error("Falha no envio: " + up.error.message);
+      var ins = await sb.from("fotos").insert({ caminho: caminho, legenda: $("leg").value.trim(), mes: parseInt($("mes").value, 10), data_foto: $("data").value });
+      if(ins.error){ await sb.storage.from("fotos").remove([caminho]); throw new Error("Falha ao salvar: " + ins.error.message); }
+      msg($("mFoto"), "Foto salva! 💙", "ok");
+      $("arq").value = ""; $("leg").value = "";
+      carregaLista();
+    } catch(err){ msg($("mFoto"), err.message, "erro"); }
+    $("bSalvar").disabled = false;
+  };
+
+  async function carregaLista(){
+    var r = await sb.from("fotos").select("*").order("criado_em", { ascending: false }).limit(8);
+    var l = $("lista"); l.textContent = "";
+    if(r.error){ l.textContent = "Não consegui carregar a lista."; return; }
+    if(!r.data.length){ l.textContent = "Nenhuma foto enviada ainda."; return; }
+    r.data.forEach(function(f){
+      var d = document.createElement("div"); d.className = "lin";
+      var im = document.createElement("img"); im.alt = ""; im.src = sb.storage.from("fotos").getPublicUrl(f.caminho).data.publicUrl;
+      var t = document.createElement("div"); t.textContent = f.legenda;
+      var s = document.createElement("small"); s.textContent = f.mes + "º mês • " + dataBr(f.data_foto); t.appendChild(s);
+      var b = document.createElement("button"); b.type = "button"; b.textContent = "Excluir";
+      b.onclick = async function(){
+        if(!confirm("Excluir esta foto?")) return;
+        await sb.from("fotos").delete().eq("id", f.id);
+        await sb.storage.from("fotos").remove([f.caminho]);
+        carregaLista();
+      };
+      d.appendChild(im); d.appendChild(t); d.appendChild(b); l.appendChild(d);
+    });
+  }
+}
+</script>
+</body>
+</html>

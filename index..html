@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diário do Davi Miguel</title>
+<script src="config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;800&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--azul:#2f6fb5;--escuro:#1d3f6e;--claro:#e8f2fc;--ceu:#cfe4f7;--sol:#f5c542;--card:#fff;--suave:#5f7f9f}
+*{box-sizing:border-box}
+body{margin:0;font-family:Nunito,system-ui,sans-serif;color:var(--escuro);line-height:1.5;
+background:linear-gradient(180deg,#d9eafa 0,#eef6fd 45%,#fff 100%) fixed;min-height:100vh}
+.topo{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);position:sticky;top:0;z-index:5;flex-wrap:wrap}
+.marca{font-family:Pacifico,cursive;font-size:1.35rem;color:var(--escuro);display:flex;align-items:center;gap:6px}
+nav{display:flex;gap:4px;overflow-x:auto}
+nav button{border:0;background:none;font:600 .95rem Nunito,sans-serif;color:var(--escuro);padding:8px 12px;border-radius:999px;cursor:pointer;white-space:nowrap}
+nav button.on{background:var(--claro);color:var(--azul)}
+button:focus-visible{outline:3px solid var(--escuro);outline-offset:2px}
+main{max-width:980px;margin:0 auto;padding:20px 16px 56px}
+.pag{display:none}.pag.on{display:block}
+h1,h2{font-family:Pacifico,cursive;font-weight:400;margin:0}
+.hero{display:grid;gap:24px;align-items:center;margin-top:8px}
+@media(min-width:760px){.hero{grid-template-columns:1fr 1fr}}
+.polaroid{background:#fff;padding:10px;border-radius:6px;box-shadow:0 6px 20px rgba(29,63,110,.2);transform:rotate(-3deg);max-width:340px;margin:0 auto}
+.foto{width:100%;aspect-ratio:1;background:var(--ceu);border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;font-size:.8rem;color:var(--suave);padding:8px}
+.foto img{width:100%;height:100%;object-fit:cover;display:block}
+.hero h1{font-size:clamp(2.3rem,9vw,3.6rem);line-height:1.1;color:var(--escuro)}
+.frase{font-family:Caveat,cursive;font-size:1.7rem;margin:8px 0 16px;color:var(--azul)}
+.infos{display:flex;gap:10px;flex-wrap:wrap}
+.info{background:var(--card);border-radius:14px;padding:10px 14px;text-align:center;box-shadow:0 3px 10px rgba(29,63,110,.12);min-width:104px}
+.info b{display:block;font-size:.9rem}.info span{font-size:.85rem;color:var(--suave)}
+.pilula{display:inline-block;margin-top:18px;background:var(--azul);color:#fff;padding:10px 18px;border-radius:999px;font-weight:600}
+.titulo{text-align:center;margin:8px 0 18px}.titulo h2{font-size:1.9rem}.titulo p{margin:4px 0 0;color:var(--suave)}
+.filtros{display:flex;gap:8px;overflow-x:auto;justify-content:flex-start;padding-bottom:6px;margin-bottom:14px}
+@media(min-width:640px){.filtros{justify-content:center}}
+.filtros button{border:0;background:#fff;color:var(--escuro);font:600 .9rem Nunito,sans-serif;padding:7px 14px;border-radius:999px;cursor:pointer;box-shadow:0 2px 6px rgba(29,63,110,.12);white-space:nowrap}
+.filtros button.on{background:var(--azul);color:#fff}
+.grade{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:700px){.grade{grid-template-columns:repeat(4,1fr)}}
+.item{position:relative;border:0;padding:0;background:none;cursor:pointer;border-radius:12px;overflow:hidden;box-shadow:0 3px 10px rgba(29,63,110,.18);text-align:left}
+.item .foto{border-radius:0;aspect-ratio:3/4}
+.item .tag{position:absolute;left:6px;right:6px;bottom:6px;background:rgba(255,255,255,.92);border-radius:8px;padding:3px 8px;font-size:.78rem;font-weight:800}
+.vazio{text-align:center;color:var(--suave);padding:24px}
+.linha{display:flex;gap:6px;overflow-x:auto;padding:10px 4px 18px;position:relative}
+.linha::before{content:"";position:absolute;left:0;right:0;top:44px;height:3px;background:var(--ceu)}
+.marco{flex:0 0 120px;text-align:center;position:relative}
+.marco .bola{width:64px;height:64px;border-radius:50%;background:#fff;border:3px solid var(--ceu);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:1.8rem}
+.marco b{display:block;font-size:.92rem}.marco small{color:var(--suave)}
+.momentos{display:grid;gap:12px;grid-template-columns:1fr}
+@media(min-width:640px){.momentos{grid-template-columns:1fr 1fr}}
+.mom{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 3px 10px rgba(29,63,110,.14)}
+.mom .foto{border-radius:0;aspect-ratio:16/10}
+.mom div.t{padding:10px 12px;font-weight:800}.mom small{display:block;font-weight:400;color:var(--suave)}
+.carta{background:#fffdf7;border-radius:8px;padding:26px 22px;margin:0 auto 18px;max-width:560px;border:10px solid transparent;
+border-image:repeating-linear-gradient(135deg,#d65b5b 0 12px,#fffdf7 12px 22px,#4a86c8 22px 34px,#fffdf7 34px 44px) 10;box-shadow:0 6px 18px rgba(29,63,110,.15)}
+.carta p{font-family:Caveat,cursive;font-size:1.55rem;line-height:1.35;margin:0 0 8px}
+.carta .ass{text-align:right;font-size:1.3rem}
+#lb{position:fixed;inset:0;background:rgba(15,28,40,.92);display:none;align-items:center;justify-content:center;flex-direction:column;padding:16px;z-index:10}
+#lb.on{display:flex}#lb img{max-width:100%;max-height:78vh;border-radius:6px}#lb p{color:#fff;margin:10px 0 0}
+#lb button{position:absolute;top:10px;right:10px;font-size:1.8rem;background:none;border:0;color:#fff;cursor:pointer;padding:8px}
+footer{text-align:center;color:var(--suave);padding:0 0 30px}
+</style>
+</head>
+<body>
+<header class="topo">
+  <div class="marca"><span aria-hidden="true">🧸</span>Diário do Davi Miguel</div>
+  <nav id="nav" aria-label="Seções">
+    <button data-p="inicio">🏠 Início</button>
+    <button data-p="galeria">📷 Galeria</button>
+    <button data-p="momentos">⭐ Momentos</button>
+    <button data-p="cartinhas">💌 Cartinhas</button>
+  </nav>
+</header>
+
+<main>
+  <section id="inicio" class="pag">
+    <div class="hero">
+      <div class="polaroid"><div class="foto" id="destaque"></div></div>
+      <div>
+        <h1>Diário do Davi Miguel</h1>
+        <div class="frase">Cada sorriso, uma nova história!</div>
+        <div class="infos">
+          <div class="info"><span>Nascimento</span><b id="nasc"></b></div>
+          <div class="info"><span>Idade atual</span><b id="idade"></b></div>
+          <div class="info"><span>Nosso amor</span><b>Sem fim! 💙</b></div>
+        </div>
+        <span class="pilula">Bem-vindo ao nosso álbum de recordações! 💙</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="galeria" class="pag">
+    <div class="titulo"><h2>📷 Nossa Galeria</h2><p>Aqui estão alguns momentos especiais do Davi!</p></div>
+    <div class="filtros" id="filtros"></div>
+    <div class="grade" id="grade"></div>
+  </section>
+
+  <section id="momentos" class="pag">
+    <div class="titulo"><h2>⭐ Linha do Tempo</h2><p>Acompanhe o crescimento do nosso príncipe!</p></div>
+    <div class="linha" id="linha"></div>
+    <div class="titulo" style="margin-top:20px"><h2>Momentos Especiais</h2><p>Pequenas grandes conquistas!</p></div>
+    <div class="momentos" id="moms"></div>
+  </section>
+
+  <section id="cartinhas" class="pag">
+    <div class="titulo"><h2>💌 Cartinhas para o Futuro</h2><p>Mensagens dos pais para você, meu filho...</p></div>
+    <div id="cartas"></div>
+  </section>
+</main>
+<footer>Feito com 💙 por mamãe e papai</footer>
+
+<div id="lb" role="dialog" aria-modal="true" aria-label="Foto ampliada">
+  <button id="fechar" aria-label="Fechar">×</button><img id="lbimg" alt=""><p id="lbcap"></p>
+</div>
+
+<script>
+/* ============ EDITE AQUI ============
+   Para adicionar uma foto: envie o arquivo para a pasta imagens/ no GitHub
+   e copie uma linha de FOTOS trocando src, mes (número), data e legenda. */
+var NASCIMENTO = "2026-05-02";
+var DESTAQUE = "imagens/destaque.jpg";
+
+var FOTOS = [
+  { src:"imagens/mes1-1.jpg", mes:1, data:"11/06/2026", legenda:"Soninho com o ursinho" },
+  { src:"imagens/mes2-1.jpg", mes:2, data:"15/07/2026", legenda:"Primeiras gargalhadas" },
+  { src:"imagens/mes3-1.jpg", mes:3, data:"15/08/2026", legenda:"Todo fofo na toquinha" },
+  { src:"imagens/mes4-1.jpg", mes:4, data:"15/09/2026", legenda:"Lindo de azul" },
+  { src:"imagens/mes5-1.jpg", mes:5, data:"15/10/2026", legenda:"Sorrisão" },
+  { src:"imagens/mes6-1.jpg", mes:6, data:"15/11/2026", legenda:"Meio ano de vida" }
+];
+
+var MARCOS = [
+  { icone:"👣", titulo:"Nascimento", data:"02/05/2026" },
+  { icone:"😊", titulo:"1º Sorriso", data:"20/05/2026" },
+  { icone:"🧸", titulo:"1ª Viagem", data:"15/06/2026" },
+  { icone:"🥣", titulo:"1ª Papinha", data:"20/08/2026" },
+  { icone:"🦷", titulo:"1º Dentinho", data:"15/10/2026" }
+];
+
+var MOMENTOS = [
+  { src:"imagens/gargalhada.jpg", titulo:"Primeira Gargalhada", data:"15/07/2026" },
+  { src:"imagens/sono.jpg", titulo:"Sono Tranquilo", data:"Sempre ❤️" },
+  { src:"imagens/praia.jpg", titulo:"Primeira Praia", data:"20/09/2026" },
+  { src:"imagens/papinha.jpg", titulo:"Primeira Papinha", data:"20/08/2026" }
+];
+
+var CARTAS = [
+  { texto:["Meu Davi,","Que Deus te abençoe sempre!","Aqui guardamos todo o nosso amor em cada detalhe desta fase tão especial da sua vida.","Você é a nossa maior alegria!"], assinatura:"Com amor, Papai e Mamãe ❤️" }
+];
+/* ============ FIM DA EDIÇÃO ============ */
+
+var $ = function(id){ return document.getElementById(id); };
+function foto(caixa, src, nome){
+  var img = new Image(); img.alt = nome || ""; img.loading = "lazy";
+  img.onload = function(){ caixa.textContent = ""; caixa.appendChild(img); };
+  img.onerror = function(){ caixa.textContent = "🧸 Adicione a foto em " + src; };
+  img.src = src;
+}
+function idade(){
+  var n = new Date(NASCIMENTO + "T00:00:00"), h = new Date();
+  var m = (h.getFullYear()-n.getFullYear())*12 + h.getMonth()-n.getMonth();
+  if(h.getDate() < n.getDate()) m--;
+  var ref = new Date(n.getFullYear(), n.getMonth()+m, n.getDate());
+  var d = Math.round((h - ref)/86400000);
+  return m + (m===1?" mês e ":" meses e ") + d + (d===1?" dia":" dias");
+}
+$("nasc").textContent = NASCIMENTO.split("-").reverse().join("/");
+$("idade").textContent = idade();
+foto($("destaque"), DESTAQUE, "Davi Miguel");
+
+/* galeria */
+var meses = [], filtro = 0;
+function calcMeses(){
+  meses = [];
+  FOTOS.forEach(function(f){ if(meses.indexOf(f.mes) < 0) meses.push(f.mes); });
+  meses.sort(function(a,b){ return a-b; });
+  if(meses.indexOf(filtro) < 0) filtro = 0;
+}
+function desenhaGaleria(){
+  calcMeses();
+  var fl = $("filtros"); fl.textContent = "";
+  [0].concat(meses).forEach(function(m){
+    var b = document.createElement("button"); b.type = "button";
+    b.textContent = m ? m + "º Mês" : "Todos";
+    if(m === filtro) b.className = "on";
+    b.onclick = function(){ filtro = m; desenhaGaleria(); };
+    fl.appendChild(b);
+  });
+  var g = $("grade"); g.textContent = "";
+  var lista = FOTOS.filter(function(f){ return !filtro || f.mes === filtro; });
+  if(!lista.length){ g.innerHTML = "<p class='vazio'>Ainda não há fotos neste mês.</p>"; return; }
+  lista.forEach(function(f){
+    var b = document.createElement("button"); b.type = "button"; b.className = "item";
+    var cx = document.createElement("div"); cx.className = "foto";
+    var tag = document.createElement("div"); tag.className = "tag";
+    tag.textContent = f.mes + "º Mês • " + f.data;
+    b.setAttribute("aria-label", "Ampliar: " + f.legenda);
+    b.appendChild(cx); b.appendChild(tag);
+    b.onclick = function(){ $("lbimg").src = f.src; $("lbimg").alt = f.legenda; $("lbcap").textContent = f.legenda + " – " + f.data; $("lb").classList.add("on"); $("fechar").focus(); };
+    foto(cx, f.src, f.legenda);
+    g.appendChild(b);
+  });
+}
+function fechar(){ $("lb").classList.remove("on"); $("lbimg").src = ""; }
+$("fechar").onclick = fechar;
+$("lb").onclick = function(e){ if(e.target === $("lb")) fechar(); };
+document.addEventListener("keydown", function(e){ if(e.key === "Escape") fechar(); });
+
+/* momentos */
+MARCOS.forEach(function(m){
+  var d = document.createElement("div"); d.className = "marco";
+  d.innerHTML = "<div class='bola'></div><b></b><small></small>";
+  d.querySelector(".bola").textContent = m.icone;
+  d.querySelector("b").textContent = m.titulo;
+  d.querySelector("small").textContent = m.data;
+  $("linha").appendChild(d);
+});
+MOMENTOS.forEach(function(m){
+  var d = document.createElement("div"); d.className = "mom";
+  d.innerHTML = "<div class='foto'></div><div class='t'></div>";
+  d.querySelector(".t").textContent = m.titulo;
+  var s = document.createElement("small"); s.textContent = m.data; d.querySelector(".t").appendChild(s);
+  foto(d.querySelector(".foto"), m.src, m.titulo);
+  $("moms").appendChild(d);
+});
+
+/* cartinhas */
+CARTAS.forEach(function(c){
+  var d = document.createElement("article"); d.className = "carta";
+  c.texto.forEach(function(t){ var p = document.createElement("p"); p.textContent = t; d.appendChild(p); });
+  var a = document.createElement("p"); a.className = "ass"; a.textContent = c.assinatura; d.appendChild(a);
+  $("cartas").appendChild(d);
+});
+
+/* navegação */
+var paginas = ["inicio","galeria","momentos","cartinhas"];
+function ir(p){
+  if(paginas.indexOf(p) < 0) p = "inicio";
+  paginas.forEach(function(x){ $(x).classList.toggle("on", x === p); });
+  Array.prototype.forEach.call($("nav").children, function(b){ b.classList.toggle("on", b.dataset.p === p); });
+  window.scrollTo(0,0);
+}
+Array.prototype.forEach.call($("nav").children, function(b){ b.onclick = function(){ location.hash = b.dataset.p; }; });
+window.addEventListener("hashchange", function(){ ir(location.hash.slice(1)); });
+desenhaGaleria();
+ir(location.hash.slice(1));
+
+/* fotos enviadas pelo painel (Supabase); se não houver, mantém a lista FOTOS acima */
+if(window.SUPABASE_URL && window.SUPABASE_URL.indexOf("http") === 0 && window.SUPABASE_KEY){
+  fetch(window.SUPABASE_URL + "/rest/v1/fotos?select=*&order=data_foto.desc", { headers: { apikey: window.SUPABASE_KEY } })
+    .then(function(r){ return r.json(); })
+    .then(function(rows){
+      if(!Array.isArray(rows) || !rows.length) return;
+      FOTOS = rows.map(function(r){
+        return { src: window.SUPABASE_URL + "/storage/v1/object/public/fotos/" + r.caminho, mes: r.mes,
+                 data: r.data_foto.split("-").reverse().join("/"), legenda: r.legenda || "" };
+      });
+      desenhaGaleria();
+    })
+    .catch(function(){});
+}
+</script>
+</body>
+</html>
